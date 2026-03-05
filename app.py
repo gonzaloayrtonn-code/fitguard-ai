@@ -159,6 +159,7 @@ defaults = {
     "session_plan_generado": False,
     "streak": 1,
     "last_session": date.today(),
+    "voice_process": None,
 }
 for key, val in defaults.items():
     if key not in st.session_state:
@@ -523,7 +524,23 @@ with tab2:
 
         st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
         st.markdown('<div class="section-title">Voice Coach</div><div class="accent-bar"></div>', unsafe_allow_html=True)
-        st.info("Voice Coach en desarrollo para hackathon. Usá prompts de voz simulados.")
+        st.info("Run python voice_agent.py in your terminal to activate the real-time Gemini Live API voice coach. Bidirectional audio streaming — speaks and listens during your workout.")
+
+        col_v1, col_v2 = st.columns(2)
+        with col_v1:
+            if st.button("🎙️ Activar Voice Coach", disabled=st.session_state.voice_process is not None, key="btn_voice_start"):
+                import subprocess
+                st.session_state.voice_process = subprocess.Popen(["python", "voice_agent.py"])
+                st.rerun()
+        with col_v2:
+            if st.button("⏹️ Detener", disabled=st.session_state.voice_process is None, key="btn_voice_stop"):
+                st.session_state.voice_process.terminate()
+                st.session_state.voice_process = None
+                st.rerun()
+
+        if st.session_state.voice_process is not None:
+            st.success("🟢 Voice Coach activo — Gemini Live API escuchando...")
+
         st.markdown('</div>', unsafe_allow_html=True)
 
 
