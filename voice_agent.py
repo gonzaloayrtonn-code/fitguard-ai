@@ -1,4 +1,5 @@
 import os
+import sys
 import asyncio
 import base64
 import io
@@ -17,7 +18,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 SEND_SAMPLE_RATE = 16000
 RECEIVE_SAMPLE_RATE = 24000
-CHUNK_SIZE = 1024
+CHUNK_SIZE = 4096
 
 MODEL = "models/gemini-2.5-flash-native-audio-latest"
 DEFAULT_MODE = "camera"
@@ -152,4 +153,6 @@ if __name__ == "__main__":
         choices=["camera", "screen", "none"])
     args = parser.parse_args()
     main = AudioLoop(video_mode=args.mode)
+    if sys.platform == "win32":
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main.run())
