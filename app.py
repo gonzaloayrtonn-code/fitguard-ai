@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 import os
 import time
 import random
@@ -63,24 +63,12 @@ h1, h2, h3 { font-family: 'Bebas Neue', sans-serif !important; letter-spacing: 2
 .welcome-text span { color: var(--accent); font-weight: 600; }
 .streak-badge { background: rgba(255,69,0,0.15); border: 1px solid rgba(255,69,0,0.3); border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 600; color: var(--accent); }
 
-.section-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 24px; }
-.section-title { font-family: 'Bebas Neue', sans-serif !important; font-size: 28px !important; letter-spacing: 3px !important; color: var(--text) !important; margin-bottom: 4px !important; }
-.accent-bar { width: 40px; height: 3px; background: var(--accent); border-radius: 2px; margin-bottom: 24px; }
-
-.bet-step { background: var(--surface2); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 20px 24px; margin: 16px 0; }
-.bet-number { font-family: 'Bebas Neue', sans-serif !important; font-size: 48px; color: var(--accent); opacity: 0.3; line-height: 1; }
-
 .progress-bar-bg { background: var(--surface2); border-radius: 8px; height: 6px; margin: 12px 0 24px 0; }
 .progress-bar-fill { background: var(--accent); border-radius: 8px; height: 6px; }
 
 .activation-bar-bg { background: var(--surface2); border-radius: 8px; height: 16px; margin: 8px 0; overflow: hidden; }
 .activation-bar-fill { border-radius: 8px; height: 16px; }
 .activation-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
-
-.timer-display { background: var(--surface2); border: 2px solid var(--accent); border-radius: 12px; padding: 16px; text-align: center; margin: 12px 0; }
-.timer-value { font-family: 'Bebas Neue', sans-serif !important; font-size: 56px; color: var(--accent); line-height: 1; }
-.timer-urgent { color: #ff0000 !important; }
-.timer-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; }
 
 .hz-display { background: linear-gradient(135deg, #1a0800, #0a0a0a); border: 1px solid var(--accent); border-radius: 12px; padding: 24px; text-align: center; margin: 16px 0; }
 .hz-value { font-family: 'Bebas Neue', sans-serif !important; font-size: 72px; color: var(--accent); line-height: 1; }
@@ -109,14 +97,17 @@ div[data-testid="metric-container"] label { color: var(--muted) !important; text
 div[data-testid="metric-container"] div[data-testid="metric-value"] { color: var(--accent) !important; font-family: 'Bebas Neue', sans-serif !important; font-size: 36px !important; }
 
 .tag { display: inline-block; background: rgba(255,69,0,0.15); color: var(--accent); border: 1px solid rgba(255,69,0,0.3); border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-right: 8px; }
-.divider { height: 1px; background: var(--border); margin: 32px 0; }
 .guide-text { color: var(--muted); font-size: 13px; padding: 12px; border: 1px dashed var(--border); border-radius: 8px; text-align: center; margin: 12px 0; }
+
+.bet-number { font-family: 'Bebas Neue', sans-serif !important; font-size: 48px; color: var(--accent); opacity: 0.3; line-height: 1; }
+.timer-box { background: var(--surface2); border: 2px solid var(--accent); border-radius: 12px; padding: 16px; text-align: center; margin: 12px 0; }
+.timer-val { font-family: 'Bebas Neue', sans-serif !important; font-size: 56px; color: var(--accent); line-height: 1; }
+.timer-lbl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; }
 
 @media (max-width: 600px) {
     .hero-title { font-size: 48px !important; }
-    .section-title { font-size: 24px !important; }
     .hz-value { font-size: 56px !important; }
-    .timer-value { font-size: 40px !important; }
+    .timer-val { font-size: 40px !important; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -144,7 +135,6 @@ def get_motivational():
     return random.choice(frases)
 
 
-# Session state - inicializar todo de una sola vez
 defaults = {
     "onboarding_done": False,
     "bet_step": 0,
@@ -165,11 +155,9 @@ for key, val in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = val
 
-# session_start se fija una sola vez
 if "session_start" not in st.session_state:
     st.session_state.session_start = time.time()
 
-# Actualizar streak basado en días
 if date.today() > st.session_state.last_session:
     st.session_state.streak += 1
     st.session_state.last_session = date.today()
@@ -224,7 +212,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# BIENVENIDA
 st.markdown(f"""
 <div class="welcome-bar">
     <div class="welcome-text">{get_greeting()}, <span>Atleta</span> - ¿listo para entrenar?</div>
@@ -237,13 +224,13 @@ st.markdown(f'<div class="motivational">"{get_motivational()}"</div>', unsafe_al
 tab1, tab2, tab3 = st.tabs(["Pre-Entreno", "Durante", "Post-Entreno"])
 
 
-# TAB 1 - PRE-ENTRENO
+# ── TAB 1 ──────────────────────────────────────────────────────────────────
 with tab1:
     col1, col2 = st.columns([1, 1])
 
+    # --- Estado Mental ---
     with col1:
-        st.markdown('<div class="section-card">', unsafe_allow_html=True)
-        st.markdown('<div class="section-title">Estado Mental</div><div class="accent-bar"></div>', unsafe_allow_html=True)
+        st.subheader("Estado Mental")
         humor = st.selectbox("Nivel de energía", ["Alta", "Normal", "Baja", "Estresado"])
         horas_sueno = st.slider("Horas de sueño", 3, 10, 7)
         estado_libre = st.text_area("Algo más?", placeholder="Ej: Tuve un día difícil...")
@@ -255,12 +242,11 @@ with tab1:
                     st.success("Plan generado")
                     st.markdown(response.text)
                 except Exception as e:
-                    st.error(f"Error en Gemini: {str(e)}. Verifica API key o conexión.")
-        st.markdown('</div>', unsafe_allow_html=True)
+                    st.error(f"Error: {str(e)}")
 
+    # --- Protocolo BET ---
     with col2:
-        st.markdown('<div class="section-card">', unsafe_allow_html=True)
-        st.markdown('<div class="section-title">Protocolo BET</div><div class="accent-bar"></div>', unsafe_allow_html=True)
+        st.subheader("Protocolo BET")
         st.write("Eleva tu frecuencia cerebral al nivel óptimo para entrenar.")
 
         step = st.session_state.bet_step
@@ -289,50 +275,35 @@ with tab1:
             start = random.randint(1, 5)
             patron = [start]
             for _ in range(4):
-                next_val = (patron[-1] % 5) + 1
-                patron.append(next_val)
+                patron.append((patron[-1] % 5) + 1)
             st.session_state.bet_pattern = patron
             st.rerun()
 
         # PASO 1
         if st.session_state.bet_step == 1:
-            st.markdown('<div class="bet-step">', unsafe_allow_html=True)
             st.markdown('<div class="bet-number">01</div>', unsafe_allow_html=True)
-            st.markdown("**Memoria de Trabajo** - Invierte la secuencia")
+            st.markdown("**Memoria de Trabajo** — Invierte la secuencia")
             st.info(f"Secuencia: **{st.session_state.bet_seq}**")
-            st.markdown("""
-            <div class="timer-display">
-                <div class="timer-value">30</div>
-                <div class="timer-label">segundos para responder</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown('<div class="timer-box"><div class="timer-val">30</div><div class="timer-lbl">segundos para responder</div></div>', unsafe_allow_html=True)
             respuesta = st.text_input("Escribí la secuencia al revés con guiones (ej: 1-9-3-7):", key="r1")
             if st.button("Confirmar", key="c1"):
                 inversa = "-".join(st.session_state.bet_seq.split("-")[::-1])
                 tiempo_usado = int(time.time() - st.session_state.bet_start_time)
                 if respuesta.strip() == inversa:
                     pts = 2 if tiempo_usado <= 15 else 1
-                    st.success(f"Correcto en {tiempo_usado}s - +{pts} pts")
+                    st.success(f"Correcto en {tiempo_usado}s — +{pts} pts")
                     st.session_state.bet_score += pts
                 else:
                     st.warning(f"La respuesta correcta era: {inversa}")
                 st.session_state.bet_step = 2
                 st.session_state.bet_start_time = time.time()
                 st.rerun()
-            
-            st.markdown('</div>', unsafe_allow_html=True)
 
         # PASO 2
         if st.session_state.bet_step == 2:
-            st.markdown('<div class="bet-step">', unsafe_allow_html=True)
             st.markdown('<div class="bet-number">02</div>', unsafe_allow_html=True)
             st.markdown("**Cálculo Mental** — Resuelve las 3 operaciones")
-            st.markdown("""
-            <div class="timer-display">
-                <div class="timer-value">45</div>
-                <div class="timer-label">segundos para responder</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown('<div class="timer-box"><div class="timer-val">45</div><div class="timer-lbl">segundos para responder</div></div>', unsafe_allow_html=True)
             responses = []
             for i, (a, b, op) in enumerate(st.session_state.bet_ops):
                 r = st.number_input(f"{a} {op} {b} =", key=f"op_{i}", step=1, value=0)
@@ -349,12 +320,9 @@ with tab1:
                 st.session_state.bet_step = 3
                 st.session_state.bet_start_time = time.time()
                 st.rerun()
-            
-            st.markdown('</div>', unsafe_allow_html=True)
 
         # PASO 3
         if st.session_state.bet_step == 3:
-            st.markdown('<div class="bet-step">', unsafe_allow_html=True)
             st.markdown('<div class="bet-number">03</div>', unsafe_allow_html=True)
             st.markdown("**Patrón Visual** — Encuentra el número que sigue")
             patron = st.session_state.bet_pattern
@@ -363,12 +331,7 @@ with tab1:
             otras = [x for x in range(1, 7) if x != siguiente]
             random.shuffle(otras)
             opciones = sorted(otras[:3] + [siguiente])
-            st.markdown("""
-            <div class="timer-display">
-                <div class="timer-value">30</div>
-                <div class="timer-label">segundos para responder</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown('<div class="timer-box"><div class="timer-val">30</div><div class="timer-lbl">segundos para responder</div></div>', unsafe_allow_html=True)
             resp = st.radio("¿Cuál es el siguiente número?", opciones, key="patron_resp", horizontal=True)
             if st.button("Confirmar", key="c3"):
                 tiempo_usado = int(time.time() - st.session_state.bet_start_time)
@@ -381,20 +344,16 @@ with tab1:
                 st.session_state.bet_step = 4
                 st.session_state.bet_start_time = time.time()
                 st.rerun()
-            
-            st.markdown('</div>', unsafe_allow_html=True)
 
         # PASO 4
         if st.session_state.bet_step == 4:
-            st.markdown('<div class="bet-step">', unsafe_allow_html=True)
             st.markdown('<div class="bet-number">04</div>', unsafe_allow_html=True)
-            st.markdown("**Respiración Neural** - Sincroniza tu cerebro")
-            st.info("Inhala 4s - Retén 4s - Exhala 4s - Repite 3 veces")
+            st.markdown("**Respiración Neural** — Sincroniza tu cerebro")
+            st.info("Inhala 4s — Retén 4s — Exhala 4s — Repite 3 veces")
             if st.button("Completé la respiración", key="c4"):
                 st.session_state.bet_score += 2
                 st.session_state.bet_step = 5
                 st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
 
         # RESULTADO FINAL
         if st.session_state.bet_step == 5:
@@ -427,7 +386,7 @@ with tab1:
                     response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
                     st.markdown(response.text)
                 except Exception as e:
-                    st.error(f"Error en Gemini: {str(e)}. Verifica API key o conexión.")
+                    st.error(f"Error: {str(e)}")
 
             if st.button("Reiniciar BET"):
                 st.session_state.bet_step = 0
@@ -435,16 +394,14 @@ with tab1:
                 st.session_state.bet_complete = False
                 st.rerun()
 
-        st.markdown('</div>', unsafe_allow_html=True)
 
-
-# TAB 2 - DURANTE
+# ── TAB 2 ──────────────────────────────────────────────────────────────────
 with tab2:
     col1, col2 = st.columns([1, 1])
 
+    # --- Análisis de Postura ---
     with col1:
-        st.markdown('<div class="section-card">', unsafe_allow_html=True)
-        st.markdown('<div class="section-title">Análisis de Postura</div><div class="accent-bar"></div>', unsafe_allow_html=True)
+        st.subheader("Análisis de Postura")
         ejercicio = st.selectbox("Ejercicio", ["Sentadilla", "Peso muerto", "Plancha", "Flexiones", "Estocada", "Otro"])
         st.markdown('<div class="guide-text">Posiciónate frente a la cámara y captura tu postura durante el ejercicio</div>', unsafe_allow_html=True)
         foto = st.camera_input("Captura tu postura")
@@ -470,12 +427,11 @@ with tab2:
                         else:
                             st.warning("No se pudo parsear la puntuación")
                     except Exception as e:
-                        st.error(f"Error en Gemini: {str(e)}. Verifica API key o conexión.")
-        st.markdown('</div>', unsafe_allow_html=True)
+                        st.error(f"Error: {str(e)}")
 
+    # --- BET Entre Sets + Voice Coach ---
     with col2:
-        st.markdown('<div class="section-card">', unsafe_allow_html=True)
-        st.markdown('<div class="section-title">BET Entre Sets</div><div class="accent-bar"></div>', unsafe_allow_html=True)
+        st.subheader("BET Entre Sets")
         st.write("Micro-tarea cognitiva durante el descanso para mantener 50Hz.")
         if st.button("Nueva micro-tarea"):
             tareas = [
@@ -490,11 +446,11 @@ with tab2:
                 "Nombrá 3 cosas que ves, 2 que escuchas, 1 que sentís",
                 "Contá los objetos rectangulares en la habitación",
             ]
-            st.markdown(f'<div class="bet-step"><strong>Micro-tarea:</strong><br><br>{random.choice(tareas)}</div>', unsafe_allow_html=True)
+            st.info(random.choice(tareas))
 
-        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="section-title">Voice Coach</div><div class="accent-bar"></div>', unsafe_allow_html=True)
-        st.info("Run python voice_agent.py in your terminal to activate the real-time Gemini Live API voice coach. Bidirectional audio streaming — speaks and listens during your workout.")
+        st.divider()
+        st.subheader("Voice Coach")
+        st.info("Corré python voice_agent.py en tu terminal para activar el coach de voz con Gemini Live API.")
 
         col_v1, col_v2 = st.columns(2)
         with col_v1:
@@ -511,15 +467,11 @@ with tab2:
         if st.session_state.voice_process is not None:
             st.success("🟢 Voice Coach activo — Gemini Live API escuchando...")
 
-        st.markdown('</div>', unsafe_allow_html=True)
 
-
-# TAB 3 - POST-ENTRENO
+# ── TAB 3 ──────────────────────────────────────────────────────────────────
 with tab3:
-    st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">Recuperación Holística</div><div class="accent-bar"></div>', unsafe_allow_html=True)
+    st.subheader("Recuperación Holística")
 
-    # Resumen de sesion
     if st.session_state.session_bet_score is not None or st.session_state.session_postura_score is not None:
         st.markdown("**Resumen de tu sesión de hoy:**")
         col_s1, col_s2, col_s3 = st.columns(3)
@@ -532,7 +484,7 @@ with tab3:
         with col_s3:
             postura_val = f"{st.session_state.session_postura_score}/10" if isinstance(st.session_state.session_postura_score, int) else "Sin analizar"
             st.metric("Puntuación de Postura", postura_val)
-        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+        st.divider()
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -556,11 +508,10 @@ with tab3:
                 st.success("Plan de recuperación listo")
                 st.markdown(response.text)
             except Exception as e:
-                st.error(f"Error en Gemini: {str(e)}. Verifica API key o conexión.")
+                st.error(f"Error: {str(e)}")
 
-        # Dashboard final
-        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="section-title">Dashboard de Sesión</div><div class="accent-bar"></div>', unsafe_allow_html=True)
+        st.divider()
+        st.subheader("Dashboard de Sesión")
         tiempo_total = int((time.time() - st.session_state.session_start) / 60)
         bet_score = st.session_state.session_bet_score
         hz_final = "48-52 Hz" if bet_score and bet_score >= 6 else "35-45 Hz" if bet_score and bet_score >= 3 else "N/A"
@@ -577,7 +528,7 @@ with tab3:
         if bet_score:
             rendimiento += int((bet_score / 9) * 50)
         if isinstance(st.session_state.session_postura_score, int):
-            rendimiento += (st.session_state.session_postura_score / 10 * 30)
+            rendimiento += int(st.session_state.session_postura_score / 10 * 30)
         color_r = "#00d084" if rendimiento >= 70 else "#ffaa00" if rendimiento >= 40 else "#ff4500"
         st.markdown(f"""
         <div style="margin-top:16px;">
@@ -589,5 +540,3 @@ with tab3:
             </div>
         </div>
         """, unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
