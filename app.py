@@ -62,6 +62,9 @@ div[data-testid="metric-container"] div[data-testid="metric-value"] { color: var
 .tag { display: inline-block; background: rgba(255,69,0,0.15); color: var(--accent); border: 1px solid rgba(255,69,0,0.3); border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-right: 8px; }
 .guide-text { color: var(--muted); font-size: 13px; padding: 12px; border: 1px dashed var(--border); border-radius: 8px; text-align: center; margin: 12px 0; }
 @media (max-width: 600px) { .hero-title { font-size: 48px !important; } .hz-value { font-size: 56px !important; } }
+
+/* Hide Streamlit internal DOM errors from users */
+div[data-testid="stException"] { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
