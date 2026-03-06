@@ -1,4 +1,4 @@
-import streamlit as st
+﻿import streamlit as st
 import os
 import time
 import random
@@ -301,10 +301,20 @@ with tab1:
             st.markdown("**Memoria de Trabajo** - Invierte la secuencia")
             st.info(f"Secuencia: **{st.session_state.bet_seq}**")
             st.markdown("""
-            <div class="timer-display">
-                <div class="timer-value">30</div>
-                <div class="timer-label">segundos para responder</div>
+            <div id="timer1" class="timer-display">
+                <div id="timer-value1" class="timer-value">30s</div>
+                <div class="timer-label">Tiempo restante</div>
             </div>
+            <script>
+            let remaining1 = 30;
+            const timerValue1 = document.getElementById('timer-value1');
+            const interval1 = setInterval(() => {
+                remaining1--;
+                timerValue1.textContent = remaining1 + ' seg';
+                if (remaining1 <= 10) timerValue1.classList.add('timer-urgent');
+                if (remaining1 <= 0) clearInterval(interval1);
+            }, 1000);
+            </script>
             """, unsafe_allow_html=True)
             respuesta = st.text_input("Escribí la secuencia al revés con guiones (ej: 1-9-3-7):", key="r1")
             if st.button("Confirmar", key="c1"):
@@ -328,10 +338,20 @@ with tab1:
             st.markdown('<div class="bet-number">02</div>', unsafe_allow_html=True)
             st.markdown("**Cálculo Mental** — Resuelve las 3 operaciones")
             st.markdown("""
-            <div class="timer-display">
-                <div class="timer-value">45</div>
-                <div class="timer-label">segundos para responder</div>
+            <div id="timer2" class="timer-display">
+                <div id="timer-value2" class="timer-value">45s</div>
+                <div class="timer-label">Tiempo restante</div>
             </div>
+            <script>
+            let remaining2 = 45;
+            const timerValue2 = document.getElementById('timer-value2');
+            const interval2 = setInterval(() => {
+                remaining2--;
+                timerValue2.textContent = remaining2 + 's';
+                if (remaining2 <= 10) timerValue2.classList.add('timer-urgent');
+                if (remaining2 <= 0) clearInterval(interval2);
+            }, 1000);
+            </script>
             """, unsafe_allow_html=True)
             responses = []
             for i, (a, b, op) in enumerate(st.session_state.bet_ops):
@@ -364,10 +384,20 @@ with tab1:
             random.shuffle(otras)
             opciones = sorted(otras[:3] + [siguiente])
             st.markdown("""
-            <div class="timer-display">
-                <div class="timer-value">30</div>
-                <div class="timer-label">segundos para responder</div>
+            <div id="timer3" class="timer-display">
+                <div id="timer-value3" class="timer-value">30s</div>
+                <div class="timer-label">Tiempo restante</div>
             </div>
+            <script>
+            let remaining3 = 30;
+            const timerValue3 = document.getElementById('timer-value3');
+            const interval3 = setInterval(() => {
+                remaining3--;
+                timerValue3.textContent = remaining3 + 's';
+                if (remaining3 <= 10) timerValue3.classList.add('timer-urgent');
+                if (remaining3 <= 0) clearInterval(interval3);
+            }, 1000);
+            </script>
             """, unsafe_allow_html=True)
             resp = st.radio("¿Cuál es el siguiente número?", opciones, key="patron_resp", horizontal=True)
             if st.button("Confirmar", key="c3"):
