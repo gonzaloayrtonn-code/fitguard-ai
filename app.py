@@ -65,6 +65,10 @@ div[data-testid="metric-container"] div[data-testid="metric-value"] { color: var
 
 /* Hide Streamlit internal DOM errors from users */
 div[data-testid="stException"] { display: none !important; }
+.stException { display: none !important; }
+[class*="ExceptionBlock"] { display: none !important; }
+[data-testid="stAlert"] > div[class*="error"] { display: none !important; }
+div[class*="errorContainer"] { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
