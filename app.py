@@ -362,23 +362,13 @@ En español, amigable y conciso."""
         st.subheader("Protocolo BET")
         st.write("Eleva tu frecuencia cerebral al nivel óptimo para entrenar.")
 
-        step = st.session_state.bet_step
-        progress_pct = min(int((step / 5) * 100), 100)
-        st.markdown(f'<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:{progress_pct}%"></div></div>', unsafe_allow_html=True)
-
         score_actual = st.session_state.bet_score
         activacion_pct = min(int((score_actual / 9) * 100), 100)
-        color_act = "#00d084" if activacion_pct >= 66 else "#ffaa00" if activacion_pct >= 33 else "#ff4500"
-        st.markdown(f'<div class="activation-label">Nivel de activación cerebral</div><div class="activation-bar-bg"><div class="activation-bar-fill" style="width:{activacion_pct}%;background:{color_act}"></div></div>', unsafe_allow_html=True)
+        st.caption(f"Nivel de activación cerebral: {activacion_pct}%")
+        st.progress(activacion_pct / 100)
 
-        if 0 < step < 5:
-            st.caption(f"Paso {min(step, 4)} de 4")
-
-        if st.button("Iniciar Protocolo BET", disabled=st.session_state.bet_complete):
-            st.session_state.bet_step = 1
-            st.session_state.bet_score = 0
-            st.session_state.bet_complete = False
-            st.session_state.bet_start_time = time.time()
+        # Inicializar datos BET una sola vez
+        if not st.session_state.bet_complete and st.session_state.bet_seq is None:
             st.session_state.bet_seq = random.choice(["7-3-9-1", "4-8-2-6", "5-1-7-3", "9-2-4-8"])
             st.session_state.bet_ops = [
                 (random.randint(10, 50), random.randint(10, 50), "+"),
@@ -390,104 +380,69 @@ En español, amigable y conciso."""
             for _ in range(4):
                 patron.append((patron[-1] % 5) + 1)
             st.session_state.bet_pattern = patron
-            st.rerun()
+            st.session_state.bet_start_time = time.time()
 
-        # PASO 1
-        if st.session_state.bet_step == 1:
-            st.markdown('<div class="bet-number">01</div>', unsafe_allow_html=True)
-            st.markdown("**Memoria de Trabajo** — Invierte la secuencia")
-            st.info(f"Secuencia: **{st.session_state.bet_seq}**")
-            st.markdown('<div class="timer-box"><div class="timer-val">30</div><div class="timer-lbl">segundos para responder</div></div>', unsafe_allow_html=True)
-            respuesta = st.text_input("Escribí la secuencia al revés con guiones (ej: 1-9-3-7):", key="r1")
-            if st.button("Confirmar", key="c1"):
-                inversa = "-".join(st.session_state.bet_seq.split("-")[::-1])
-                tiempo_usado = int(time.time() - st.session_state.bet_start_time)
-                if respuesta.strip() == inversa:
-                    pts = 2 if tiempo_usado <= 15 else 1
-                    st.success(f"Correcto en {tiempo_usado}s — +{pts} pts")
-                    st.session_state.bet_score += pts
-                else:
-                    st.warning(f"La respuesta correcta era: {inversa}")
-                st.session_state.bet_step = 2
-                st.session_state.bet_start_time = time.time()
-                st.rerun()
+        if not st.session_state.bet_complete and st.session_state.bet_seq is not None:
+            # FORMULARIO ÚNICO — sin st.rerun() entre pasos
+            st.divider()
+            st.markdown("**01 — Memoria de Trabajo**")
+            st.info(f"Secuencia: **{st.session_state.bet_seq}** — invertila con guiones")
+            r1 = st.text_input("Secuencia al revés (ej: 1-9-3-7):", key="r1")
 
-        # PASO 2
-        if st.session_state.bet_step == 2:
-            st.markdown('<div class="bet-number">02</div>', unsafe_allow_html=True)
-            st.markdown("**Cálculo Mental** — Resuelve las 3 operaciones")
-            st.markdown('<div class="timer-box"><div class="timer-val">45</div><div class="timer-lbl">segundos para responder</div></div>', unsafe_allow_html=True)
+            st.divider()
+            st.markdown("**02 — Cálculo Mental**")
             responses = []
             for i, (a, b, op) in enumerate(st.session_state.bet_ops):
                 r = st.number_input(f"{a} {op} {b} =", key=f"op_{i}", step=1, value=0)
                 responses.append(r)
-            if st.button("Confirmar", key="c2"):
-                correctos = 0
-                for i, (a, b, op) in enumerate(st.session_state.bet_ops):
-                    correcto = a + b if op == "+" else a - b if op == "-" else a * b
-                    if responses[i] == correcto:
-                        correctos += 1
-                tiempo_usado = int(time.time() - st.session_state.bet_start_time)
-                pts = correctos + (1 if tiempo_usado <= 20 else 0)
-                st.session_state.bet_score += min(pts, 3)
-                st.session_state.bet_step = 3
-                st.session_state.bet_start_time = time.time()
-                st.rerun()
 
-        # PASO 3
-        if st.session_state.bet_step == 3:
-            st.markdown('<div class="bet-number">03</div>', unsafe_allow_html=True)
-            st.markdown("**Patrón Visual** — Encuentra el número que sigue")
+            st.divider()
+            st.markdown("**03 — Patrón Visual**")
             patron = st.session_state.bet_pattern
             siguiente = (patron[-1] % 5) + 1
             st.info(f"Patrón: **{' - '.join(map(str, patron))} - ?**")
             otras = [x for x in range(1, 7) if x != siguiente]
             random.shuffle(otras)
             opciones = sorted(otras[:3] + [siguiente])
-            st.markdown('<div class="timer-box"><div class="timer-val">30</div><div class="timer-lbl">segundos para responder</div></div>', unsafe_allow_html=True)
-            resp = st.radio("¿Cuál es el siguiente número?", opciones, key="patron_resp", horizontal=True)
-            if st.button("Confirmar", key="c3"):
+            resp_patron = st.radio("¿Cuál es el siguiente?", opciones, key="patron_resp", horizontal=True)
+
+            st.divider()
+            st.markdown("**04 — Respiración Neural**")
+            st.info("🫁 Inhala 4s — Retén 4s — Exhala 4s — Repite 3 veces antes de confirmar")
+            respiracion = st.checkbox("✅ Completé la respiración", key="resp_check")
+
+            if st.button("COMPLETAR PROTOCOLO BET", disabled=not respiracion):
+                score = 0
                 tiempo_usado = int(time.time() - st.session_state.bet_start_time)
-                if resp == siguiente:
-                    pts = 2 if tiempo_usado <= 15 else 1
-                    st.success(f"Correcto — +{pts} pts")
-                    st.session_state.bet_score += pts
-                else:
-                    st.warning(f"La respuesta correcta era: {siguiente}")
-                st.session_state.bet_step = 4
-                st.session_state.bet_start_time = time.time()
-                st.rerun()
+                inversa = "-".join(st.session_state.bet_seq.split("-")[::-1])
+                if r1.strip() == inversa:
+                    score += 2 if tiempo_usado <= 30 else 1
+                correctos = 0
+                for i, (a, b, op) in enumerate(st.session_state.bet_ops):
+                    correcto = a + b if op == "+" else a - b if op == "-" else a * b
+                    if responses[i] == correcto:
+                        correctos += 1
+                score += min(correctos + (1 if tiempo_usado <= 60 else 0), 3)
+                if resp_patron == siguiente:
+                    score += 2 if tiempo_usado <= 45 else 1
+                score += 2
+                st.session_state.bet_score = score
+                st.session_state.bet_complete = True
+                st.session_state.session_bet_score = score
 
-        # PASO 4
-        if st.session_state.bet_step == 4:
-            st.markdown('<div class="bet-number">04</div>', unsafe_allow_html=True)
-            st.markdown("**Respiración Neural** — Sincroniza tu cerebro")
-            st.info("Inhala 4s — Retén 4s — Exhala 4s — Repite 3 veces")
-            if st.button("Completé la respiración", key="c4"):
-                st.session_state.bet_score += 2
-                st.session_state.bet_step = 5
-                st.rerun()
-
-        # RESULTADO FINAL
-        if st.session_state.bet_step == 5:
-            score = st.session_state.bet_score
-            st.session_state.bet_complete = True
-            st.session_state.session_bet_score = score
+        if st.session_state.bet_complete:
+            score = st.session_state.session_bet_score
             hz = "48-52 Hz" if score >= 6 else "35-45 Hz" if score >= 3 else "20-30 Hz"
             nivel = "ÓPTIMO" if score >= 6 else "ACTIVADO" if score >= 3 else "EN CALENTAMIENTO"
             emoji = "🟢" if score >= 6 else "🟡" if score >= 3 else "🔴"
             st.markdown(f'<div class="hz-display"><div class="hz-value">{hz.split("-")[0]}</div><div class="hz-label">Hz estimados · {nivel} {emoji} · Score: {score}/9</div></div>', unsafe_allow_html=True)
 
             badges = []
-            if score >= 8:
-                badges.append(("🏆", "MAESTRO COGNITIVO", "Score perfecto"))
-            if score >= 6:
-                badges.append(("⚡", "CEREBRO ACTIVADO", "Frecuencia óptima"))
-            if score >= 3:
-                badges.append(("🧠", "ENFOCADO", "BET completado"))
+            if score >= 8: badges.append(("🏆", "MAESTRO COGNITIVO", "Score perfecto"))
+            if score >= 6: badges.append(("⚡", "CEREBRO ACTIVADO", "Frecuencia óptima"))
+            if score >= 3: badges.append(("🧠", "ENFOCADO", "BET completado"))
             badges.append(("✅", "GUERRERO MENTAL", "Protocolo finalizado"))
 
-            st.markdown("**Logros desbloqueados:**")
             cols = st.columns(len(badges))
             for i, (icon, title, desc) in enumerate(badges):
                 with cols[i]:
@@ -505,7 +460,9 @@ En español, amigable y conciso."""
                 st.session_state.bet_step = 0
                 st.session_state.bet_score = 0
                 st.session_state.bet_complete = False
-                st.rerun()
+                st.session_state.bet_seq = None
+                st.session_state.bet_ops = None
+                st.session_state.bet_pattern = None
 
 
 # ── TAB 2 ──────────────────────────────────────────────────────────────────
