@@ -446,7 +446,7 @@ En español, amigable y conciso."""
             cols = st.columns(len(badges))
             for i, (icon, title, desc) in enumerate(badges):
                 with cols[i]:
-                    st.markdown(f'<div class="badge-card"><div class="badge-icon">{icon}</div><div class="badge-title">{title}</div><div class="badge-desc">{desc}</div></div>', unsafe_allow_html=True)
+                    st.metric(label=f"{icon} {title}", value=desc)
 
             with st.spinner("Analizando activación cerebral..."):
                 prompt = f"Atleta completó protocolo BET con puntuación {score}/9. Estado: {nivel}. Frecuencia: {hz}. Evaluación cognitiva breve y recomendación de entrenamiento. Español, motivador, conciso."
@@ -530,7 +530,11 @@ with tab2:
                 st.rerun()
         with col_v2:
             if st.button("⏹️ Detener", disabled=st.session_state.voice_process is None, key="btn_voice_stop"):
-                st.session_state.voice_process.terminate()
+                if st.session_state.voice_process is not None:
+                    try:
+                        st.session_state.voice_process.terminate()
+                    except Exception:
+                        pass
                 st.session_state.voice_process = None
                 st.rerun()
 
